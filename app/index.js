@@ -11,19 +11,6 @@ var ip = require('ip');
 
 var fs = require("fs");
 var util = require("util");
-var content;
-
-fs.readFile(path.join(__dirname, "log", "access.log"), 'utf8', function (err, data) {
-    if (err) {
-        console.log(err);
-        process.exit(1);
-    }
-    content = util.format(data, "test", "test", "test");
-    //console.log(content);
-});
-
-
-
 
 //Sets our app to use the handlebars engine
 app.set('view engine', 'handlebars');
@@ -32,8 +19,6 @@ app.engine('handlebars', handlebars({
 layoutsDir: __dirname + '/views/layouts',
 }));
 app.use(express.static('public'))
-
-var node_ip = process.env.NODE_IP;
 
 // create a rotating write stream
 var accessLogStream = rfs.createStream('access.log', {
