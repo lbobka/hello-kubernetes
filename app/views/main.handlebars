@@ -1,0 +1,20 @@
+    <div id="wrapper">
+        <div id="header">
+            <img src="/images/k8s_icon_small.png">
+            <p>Node Name: {{node_name}}</p>
+            <p>Node IP: {{node_ip}}</p>
+        </div>
+        <div id="navigation">
+            <p>PVC Path: {{pvc_path}}</p>
+        </div>
+        <div id="content">
+            <h1>Content from access.log</h1>
+            <p>    
+                <ul>
+                        {{#each log_content}}
+                        <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
+                </p>
+       </div>
+    </div>
