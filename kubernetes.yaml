@@ -1,0 +1,96 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: pvc-lars
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: pvc-lars-ingress
+    namespace: pvc-lars
+    labels:
+      app: pvc-lars-app
+    annotations:
+      acme.cert-manager.io/http01-ingress-class: ingress1
+      kubernetes.io/ingress.class: ingress1
+      cert-manager.io/cluster-issuer: letsencrypt-production      
+  spec:
+    tls:
+      - hosts:
+        - pvc-lars-app.ingress1.dev-lbobka.de-1.mk.psmanaged.com
+        secretName: pvc-lars-secret  
+    rules:
+      - host: pvc-lars-app.ingress1.dev-lbobka.de-1.mk.psmanaged.com
+        http:
+          paths:
+            - path: /
+              backend:
+                serviceName: pvc-lars-svc
+                servicePort: 3000
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: pvc-lars-svc
+    namespace: pvc-lars
+    labels:
+      app: pvc-lars-app
+  spec:
+    ports:
+    - name: http
+      port: 3000
+      targetPort: http
+    selector:
+      app: pvc-lars-app
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: pvc-lars-data-pvc
+    namespace: pvc-lars
+    annotations: {}
+    labels:
+      app: pvc-lars-app
+  spec:
+    storageClassName: "rook-cephfs"  
+    accessModes:
+    - ReadWriteMany
+    volumeMode: Filesystem
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: pvc-lars-deployment
+    namespace: pvc-lars
+    labels:
+      app: pvc-lars-app
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: pvc-lars-app    
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: pvc-lars-app
+      spec:
+        containers:
+        - name: pvc-lars-container
+          image: lbobka/hello-kubernetes:latest
+          ports:
+          - containerPort: 3000
+            name: http
+          volumeMounts:
+          - mountPath: /usr/src/app/log
+            name: pvc-lars-data
+        restartPolicy: Always
+        volumes:
+        - name: pvc-lars-data
+          persistentVolumeClaim:
+            claimName: pvc-lars-data-pvc
+kind: List
+metadata: {}

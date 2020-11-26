@@ -20,12 +20,8 @@ layoutsDir: __dirname + '/views/layouts',
 }));
 app.use(express.static('public'))
 
-// create a rotating write stream
-var accessLogStream = rfs.createStream('access.log', {
-    interval: '1d', // rotate daily
-    path: path.join(__dirname, 'log')
-  })
-  
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'log/access.log'), { flags: 'a' })
+
 // setup the logger
 morgan.token('host', function(req, res) {
     return os.hostname();
